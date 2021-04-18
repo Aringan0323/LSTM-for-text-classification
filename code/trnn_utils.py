@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import pickle as pkl
 import re
 import torch
@@ -91,11 +90,16 @@ class Text_Encoder(nn.Module):
         sigmoid = nn.Sigmoid()
 
         # id_batch: use id_batch (paper ids in this batch) to obtain paper conent of this batch
-        content = self.p_content[id_batch]
-        x = torch.zeros((content.shape[0], 128))
-
-        for i, word in enumerate(content):
-            x[i] = self.word_embed[int(word)]
+        content_list = []
+        max_len = 0
+        for id in id_batch:
+            content_list.append(self.p_content[id])
+            if self.p_content[id].shape[0] > max_len:
+                max_len = self.p_content[id].shape[0]
+        x = torch.zeros((5, max_len, 128))
+        for i, content in enumerate(content_list):
+            for j, word in enumerate(content):
+                x[i,j] = self.word_embed[int(word)]
 
 
 

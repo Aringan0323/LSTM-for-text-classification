@@ -3,7 +3,6 @@ import re;
 import random
 import math
 import numpy as np
-import pandas as pd
 from gensim.models import Word2Vec
 import pickle as pkl
 from itertools import *

@@ -11,18 +11,20 @@ torch.manual_seed(0)
 
 # model train
 def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, epochs, device):
-
+	train_data_x = torch.LongTensor(train_data_x)
+	train_data_y = torch.LongTensor(train_data_y)
+	test_data_x = torch.LongTensor(train_data_x)
+	test_data_y = torch.LongTensor(train_data_y)
 	train_set = TensorDataset(train_data_x, train_data_y)
-	trainloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=8)
+	trainloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=6)
 	test_set = TensorDataset(test_data_x, test_data_y)
-	testloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=8)
+	testloader = DataLoader(test_set, batch_size=5, shuffle=True, num_workers=6)
 	word_embed = torch.from_numpy(word_embed)
 	p_content = torch.FloatTensor(all_data)
 
-	model = TextEncoder(p_content.to(device), word_embed.to(device)).to(device)
-
+	model = U.Text_Encoder(p_content.to(device), word_embed.to(device)).to(device)
 	model_loss = nn.CrossEntropyLoss()
-	optimizer = optim.Adam(net.parameters(), lr=0.001)
+	optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 	for epoch in range(epochs):
 		running_loss = 0.0
@@ -30,7 +32,7 @@ def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, t
 			inputs, labels = data[0].to(device), data[1].to(device)
 			optimizer.zero_grad()
 
-			outputs = model(inputs)
+			outputs = torch.transpose(model(inputs), 0, 1).view(5)
 			loss = model_loss(outputs, labels)
 			loss.backward()
 			optimizer.step()
@@ -52,8 +54,7 @@ if __name__ == '__main__':
 	train_data_y = train_data[1]
 	test_data_x = test_data[0] # map content by id
 	test_data_y = test_data[1]
-
 	word_embed = input_data.load_word_embed()
 
 	# model train (model test function can be called directly in model_train)
-	model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, 50, torch.device('cuda:0'))
+	model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, 50, torch.device('cpu'))
