@@ -89,7 +89,11 @@ class Text_Encoder(nn.Module):
     def forward(self, id_batch):
         # id_batch: use id_batch (paper ids in this batch) to obtain paper conent of this batch
 
-        #x = paper_content
+        content = self.p_content[id_batch]
+        x = torch.zeros((content.shape[0], 128))
+
+        for i in range(content.shape[0]):
+            x[i] = self.word_embed[content[i]]
 
         relu = nn.ReLU()
         sigmoid = nn.Sigmoid()
