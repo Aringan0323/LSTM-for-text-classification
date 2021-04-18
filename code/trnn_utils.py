@@ -111,7 +111,7 @@ class Text_Encoder(nn.Module):
         else:
             x = h_n[-1]
 
-        x = self.relu(x)
-        x = self.sigmoid(self.fchl(x))
+        x = relu(x)
+        x = sigmoid(self.fchl(x))
         x = self.fcol(x)
         return x
