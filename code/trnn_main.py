@@ -13,26 +13,35 @@ torch.manual_seed(0)
 def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, epochs, device):
 	train_data_x = torch.LongTensor(train_data_x)
 	train_data_y = torch.LongTensor(train_data_y)
-	test_data_x = torch.LongTensor(train_data_x)
-	test_data_y = torch.LongTensor(train_data_y)
+	test_data_x = torch.LongTensor(test_data_x)
+	test_data_y = torch.LongTensor(test_data_y)
 	train_set = TensorDataset(train_data_x, train_data_y)
-	trainloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=6)
+	trainloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=3)
 	test_set = TensorDataset(test_data_x, test_data_y)
-	testloader = DataLoader(test_set, batch_size=5, shuffle=True, num_workers=6)
-	word_embed = torch.from_numpy(word_embed)
-	p_content = torch.FloatTensor(all_data)
+	testloader = DataLoader(test_set, batch_size=5, shuffle=True, num_workers=3)
+	word_embed = torch.from_numpy(word_embed).to(device)
+	p_content = torch.FloatTensor(all_data).to(device)
 
-	model = U.Text_Encoder(p_content.to(device), word_embed.to(device)).to(device)
+	model = U.Text_Encoder(p_content, word_embed, mean_pooling=False, device=device)
+	model = model.to(device)
 	model_loss = nn.CrossEntropyLoss()
 	optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 	for epoch in range(epochs):
 		running_loss = 0.0
 		for i, data in enumerate(trainloader,0):
-			inputs, labels = data[0].to(device), data[1].to(device)
+			inputs, labels = data[0], data[1]
+			inputs = inputs.to(device)
+			labels = labels.to(device)
 			optimizer.zero_grad()
 
-			outputs = torch.transpose(model(inputs), 0, 1).view(5)
+
+			outputs = model(inputs)
+			outputs = torch.transpose(outputs, 0, 1)
+			# if i % 1000 == 0:
+			# 	print("Batch {} inputs shape: {}".format(i, p_content[inputs[0]]))
+			# 	print("Batch {} labels shape: {}".format(i, labels.shape))
+			# 	print("Batch {} outputs shape: {}".format(i, outputs.shape))
 			loss = model_loss(outputs, labels)
 			loss.backward()
 			optimizer.step()

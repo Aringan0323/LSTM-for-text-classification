@@ -74,13 +74,14 @@ class input_data():
 
 #text RNN Encoder
 class Text_Encoder(nn.Module):
-    def __init__(self, p_content, word_embed, mean_pooling=False):
+    def __init__(self, p_content, word_embed, mean_pooling=False, device=torch.device('cpu')):
         # two input: p_content - abstract data of all papers, word_embed - pre-trained word embedding
         super(Text_Encoder, self).__init__()
         self.p_content = p_content
         self.word_embed = word_embed
         self.mean_pooling = mean_pooling
-        self.lstm = nn.LSTM(input_size=128, hidden_size=64)
+        self.device = device
+        self.lstm = nn.LSTM(input_size=128, hidden_size=64, batch_first=True)
         self.fchl = nn.Linear(64, 32)
         self.fcol = nn.Linear(32, 5)
 
@@ -90,18 +91,13 @@ class Text_Encoder(nn.Module):
         sigmoid = nn.Sigmoid()
 
         # id_batch: use id_batch (paper ids in this batch) to obtain paper conent of this batch
-        content_list = []
-        max_len = 0
-        for id in id_batch:
-            content_list.append(self.p_content[id])
-            if self.p_content[id].shape[0] > max_len:
-                max_len = self.p_content[id].shape[0]
-        x = torch.zeros((5, max_len, 128))
-        for i, content in enumerate(content_list):
-            for j, word in enumerate(content):
-                x[i,j] = self.word_embed[int(word)]
+        x = torch.zeros((id_batch.shape[0], 100, 128))
+        for i in range(id_batch.shape[0]):
+            content = self.p_content[id_batch[i]]
+            for j in range(content.shape[0]):
+                x[i,j] = self.word_embed[int(content[j])]
 
-
+        x = x.to(self.device)
 
         output, (h_n, c_n) = self.lstm(x)
 
@@ -114,7 +110,6 @@ class Text_Encoder(nn.Module):
             x = h_mean
         else:
             x = h_n[-1]
-
         x = relu(x)
         x = sigmoid(self.fchl(x))
         x = self.fcol(x)
