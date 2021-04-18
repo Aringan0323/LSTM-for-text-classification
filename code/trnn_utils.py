@@ -13,7 +13,7 @@ embed_d = 128
 # data class
 class input_data():
     def load_text_data(self, word_n = 100000):
-        f = open('../dataset/paper_abstract.pkl', 'r')
+        f = open('../dataset/paper_abstract.pkl', 'rb')
         p_content_set = pkl.load(f)
         f.close()
 

@@ -10,13 +10,37 @@ from torch.utils.data import TensorDataset, DataLoader
 torch.manual_seed(0)
 
 # model train
-def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y):
-	
+def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, epochs, device):
 
+	train_set = TensorDataset(train_data_x, train_data_y)
+	trainloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=8)
+	test_set = TensorDataset(test_data_x, test_data_y)
+	testloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=8)
+	word_embed = torch.from_numpy(word_embed)
+	p_content = torch.FloatTensor(all_data)
 
-# model test: can be called directly in model_train 
+	model = TextEncoder(p_content.to(device), word_embed.to(device)).to(device)
+
+	model_loss = nn.CrossEntropyLoss()
+	optimizer = optim.Adam(net.parameters(), lr=0.001)
+
+	for epoch in range(epochs):
+		running_loss = 0.0
+		for i, data in enumerate(trainloader,0):
+			inputs, labels = data[0].to(device), data[1].to(device)
+			optimizer.zero_grad()
+
+			outputs = model(inputs)
+			loss = model_loss(outputs, labels)
+			loss.backward()
+			optimizer.step()
+			running_loss += loss.item()
+		loss_this_epoch = running_loss / len(train_data_x)
+		print("Epoch {} loss: {}".format(epoch, loss_this_epoch))
+
+# model test: can be called directly in model_train
 def model_test(test_data_x, test_data_y, net, epoch_num):
-	
+	return
 
 
 if __name__ == '__main__':
@@ -32,10 +56,4 @@ if __name__ == '__main__':
 	word_embed = input_data.load_word_embed()
 
 	# model train (model test function can be called directly in model_train)
-	model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y)
-
-
-
-
-
-
+	model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, 50, torch.device('cuda:0'))
