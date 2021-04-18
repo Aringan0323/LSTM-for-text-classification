@@ -40,9 +40,13 @@ def word2vec():
     for index, word in enumerate(model.wv.index_to_key):
         # Word embeddding vector stored at index=wordID of embedding array
         word_embed[int(word)] = model.wv[word]
-    np.savetxt('../dataset/word_embeddings1.txt', word_embed[0:int(word_embed.shape[0]/2)], delimiter=' ')
-    np.savetxt('../dataset/word_embeddings2.txt', word_embed[int(word_embed.shape[0]/2):], delimiter=' ')
-    # generate word embedding file: word_embeddings.txt
+    len = word_embed.shape[0]
+    np.savetxt('../dataset/word_embeddings1.txt', word_embed[0:int(len/4)], delimiter=' ')
+    np.savetxt('../dataset/word_embeddings2.txt', word_embed[int(len/4):int(len/2)], delimiter=' ')
+    np.savetxt('../dataset/word_embeddings3.txt', word_embed[int(len/2):int(3*len/4)], delimiter=' ')
+    np.savetxt('../dataset/word_embeddings4.txt', word_embed[int(3*len/4):], delimiter=' ')
+    # generate word embedding files: word_embeddings1.txt and word_embeddings2.txt
+    # Split embeddings into 4 files to comply with Github's file size recommendation of 50mb per file
 
 
 if __name__ == "__main__":

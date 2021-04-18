@@ -63,8 +63,12 @@ class input_data():
 
     def load_word_embed(self):
         word_embed = np.zeros((32786, 128))
-        word_embed[0:int(word_embed.shape[0]/2)] = np.genfromtxt('../dataset/word_embeddings1.txt', delimiter=' ')
-        word_embed[int(word_embed.shape[0]/2):] = np.genfromtxt('../dataset/word_embeddings2.txt', delimiter=' ')
+        len = word_embed.shape[0]
+
+        word_embed[0:int(len/4)] = np.genfromtxt('../dataset/word_embeddings1.txt', delimiter=' ')
+        word_embed[int(len/4):int(len/2)] = np.genfromtxt('../dataset/word_embeddings2.txt', delimiter=' ')
+        word_embed[int(len/2):int(3*len/4)] = np.genfromtxt('../dataset/word_embeddings3.txt', delimiter=' ')
+        word_embed[int(3*len/4):] = np.genfromtxt('../dataset/word_embeddings4.txt', delimiter=' ')
         return word_embed
 
 
