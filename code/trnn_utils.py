@@ -82,8 +82,8 @@ class Text_Encoder(nn.Module):
         self.word_embed = word_embed
         self.mean_pooling = mean_pooling
         self.lstm = nn.LSTM(input_size=128, hidden_size=64)
-        self.fcl1 = nn.Linear(64, 32)
-        self.fcl2 = nn.Linear(32, 5)
+        self.fchl = nn.Linear(64, 32)
+        self.fcol = nn.Linear(32, 5)
 
 
     def forward(self, id_batch):
@@ -112,6 +112,6 @@ class Text_Encoder(nn.Module):
             x = h_n[-1]
 
         x = self.relu(x)
-        x = self.sigmoid(self.fcl1(x))
-        x = self.fc2(x)
+        x = self.sigmoid(self.fchl(x))
+        x = self.fcol(x)
         return x
