@@ -47,7 +47,7 @@ def word2vec():
     # generate word embedding files: word_embeddings1.txt and word_embeddings2.txt
     # Split embeddings into 4 files to comply with Github's file size recommendation of 50mb per file
 
-
+#For testing
 if __name__ == "__main__":
 
     model = word2vec()

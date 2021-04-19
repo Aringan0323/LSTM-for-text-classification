@@ -47,11 +47,9 @@ class input_data():
         for j in range(len(p_content)):
             if j % 10 in (3, 6, 9):
                 p_id_test.append(p_content_id[j])
-                #p_content_test.append(p_content[j])
                 p_label_test.append(p_label[j])
             else:
                 p_id_train.append(p_content_id[j])
-                #p_content_train.append(p_content[j])
                 p_label_train.append(p_label[j])
 
         p_train_set = (p_id_train, p_label_train)
@@ -99,6 +97,9 @@ class Text_Encoder(nn.Module):
 
         output, (h_n, c_n) = self.lstm(x)
 
+        # If mean pooling is specified then the average of all hidden layers will
+        # be used for the text embedding. Otherwise, the text embedding will just
+        # be the final hidden layer of the LSTM
         if self.mean_pooling:
             num_layers = h_n.shape[0]
             h_mean = torch.zeros(h_n.shape[1:], device=self.device)

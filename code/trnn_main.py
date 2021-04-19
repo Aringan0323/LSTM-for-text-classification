@@ -1,7 +1,6 @@
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
-# import scipy
 import trnn_utils as U
 import torch
 import torch.nn as nn
@@ -18,6 +17,7 @@ def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, t
 	test_data_x = torch.LongTensor(test_data_x)
 	test_data_y = torch.LongTensor(test_data_y)
 	train_set = TensorDataset(train_data_x, train_data_y)
+	# Using the DataLoader to split training set into batches of size 5
 	trainloader = DataLoader(train_set, batch_size=5, shuffle=True, num_workers=10)
 	word_embed = torch.from_numpy(word_embed).to(device)
 	p_content = torch.FloatTensor(all_data).to(device)
@@ -26,6 +26,7 @@ def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, t
 	model = model.to(device)
 	model_loss = nn.CrossEntropyLoss()
 	optimizer = optim.Adam(model.parameters(), lr=0.001)
+	# History of the model training loop
 	history = {'epoch':[], 'loss':[], 'acc':[]}
 	for epoch in range(epochs):
 		running_loss = 0.0
@@ -39,7 +40,8 @@ def model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, t
 			labels = labels.to(device)
 			optimizer.zero_grad()
 
-
+			# Using the paper ids as inputs to the model. The model will convert them
+			# into tensors of word vectors from the pretrained word embedding
 			outputs = model(inputs)
 			loss = model_loss(outputs, labels)
 			loss.backward()
@@ -82,11 +84,11 @@ if __name__ == '__main__':
 	test_data_y = test_data[1]
 	word_embed = input_data.load_word_embed()
 
-	# model train (model test function can be called directly in model_train)
+	# Training the model without mean pooling and with mean pooling
 	hist1 = model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, 10, torch.device('cpu'))
 	hist2 = model_train(all_data, word_embed, train_data_x, train_data_y, test_data_x, test_data_y, 10, torch.device('cpu'), mean_pooling=True)
 
-
+	# Plotting the test accuracy of each model over the training epochs.
 	plt.plot(hist1['epoch'], hist1['acc'], label='Last Hidden Layer Encoding')
 	plt.plot(hist2['epoch'], hist2['acc'], label='Mean Pooling Encoding')
 	plt.axis([0,10,0,100])
