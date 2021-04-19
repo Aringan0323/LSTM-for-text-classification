@@ -84,33 +84,31 @@ class Text_Encoder(nn.Module):
         self.lstm = nn.LSTM(input_size=128, hidden_size=64, batch_first=True)
         self.fchl = nn.Linear(64, 32)
         self.fcol = nn.Linear(32, 5)
+        self.relu = nn.ReLU()
+        self.sigmoid = nn.Sigmoid()
 
 
     def forward(self, id_batch):
-        relu = nn.ReLU()
-        sigmoid = nn.Sigmoid()
 
         # id_batch: use id_batch (paper ids in this batch) to obtain paper conent of this batch
-        x = torch.zeros((id_batch.shape[0], 100, 128))
+        x = torch.zeros((id_batch.shape[0], 100, 128), device=self.device)
         for i in range(id_batch.shape[0]):
             content = self.p_content[id_batch[i]]
             for j in range(content.shape[0]):
                 x[i,j] = self.word_embed[int(content[j])]
 
-        x = x.to(self.device)
-
         output, (h_n, c_n) = self.lstm(x)
 
         if self.mean_pooling:
             num_layers = h_n.shape[0]
-            h_mean = torch.zeros(h_n.shape[1:])
+            h_mean = torch.zeros(h_n.shape[1:], device=self.device)
             for i in range(num_layers):
                 h_mean = h_mean + h_n[i]
             h_mean = torch.div(h_mean, num_layers)
             x = h_mean
         else:
             x = h_n[-1]
-        x = relu(x)
-        x = sigmoid(self.fchl(x))
+        x = self.relu(x)
+        x = self.sigmoid(self.fchl(x))
         x = self.fcol(x)
         return x
